@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gold Decision Dashboard</title>
+
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 30px;
+    }
+    h1 {
+      text-align: center;
+      color: #facc15;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+    .card {
+      background: #020617;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+    .card h2 {
+      margin-top: 0;
+      color: #38bdf8;
+    }
+    .price {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    .badge {
+      display: inline-block;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .BUY { background: #16a34a; }
+    .ACCUMULATE { background: #ca8a04; }
+    .HOLD { background: #0284c7; }
+    .WAIT { background: #dc2626; }
+
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 14px;
+      color: #9ca3af;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>🟡 Gold Decision Dashboard</h1>
+
+    <div class="cards">
+      <div class="card">
+        <h2>Gold Price</h2>
+        <div id="usd" class="price">Loading...</div>
+        <div id="inr" class="price">Loading...</div>
+      </div>
+
+      <div class="card">
+        <h2>Recommendation</h2>
+        <div id="recommendation" class="badge">Loading...</div>
+      </div>
+
+      <div class="card">
+        <h2>Status</h2>
+        <div id="time">Updating...</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Decision-support only • Auto refresh every 15 minutes
+    </div>
+  </div>
+
+  <script>
+    // 🔴 VERY IMPORTANT: replace this with YOUR Render backend URL
+    const API_URL = "https://gold-dashboard-backend.onrender.com/gold";
+
+    async function loadGoldData() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+
+        document.getElementById("usd").innerText =
+          `USD / oz: $${data.gold_price_usd_oz}`;
+
+        document.getElementById("inr").innerText =
+          `₹ / 10g (incl GST): ₹${data.gold_price_inr_10g_incl_gst}`;
+
+        const badge = document.getElementById("recommendation");
+        badge.innerText = data.recommendation;
+        badge.className = "badge " + data.recommendation;
+
+        document.getElementById("time").innerText =
+          "Last updated: " + new Date(data.timestamp).toLocaleString();
+
+      } catch (err) {
+        document.getElementById("time").innerText =
+          "Error fetching data from backend";
+      }
+    }
+
+    loadGoldData();
+    setInterval(loadGoldData, 15 * 60 * 1000);
+  </script>
+</body>
+</html>
